@@ -43,6 +43,16 @@ module Resque
         args.join('-')
       end
 
+      # Override to fully control the redis object used for storing
+      # the locks.
+      #
+      # The default is Resque.redis
+      #
+      # @return [Redis] redis object
+      def lock_redis
+        Resque.redis
+      end
+
       # Override to fully control the lock key used. It is passed
       # the job arguments.
       #
@@ -76,7 +86,7 @@ module Resque
 
         unless lock_timeout > 0
           # Acquire without using a timeout.
-          acquired = true if Resque.redis.setnx(lock_key, true)
+          acquired = true if lock_redis.setnx(lock_key, true)
         else
           # Acquire using the timeout algorithm.
           acquired, lock_until = acquire_lock_algorithm!(lock_key)
@@ -94,18 +104,18 @@ module Resque
         lock_until = now + lock_timeout
         acquired = false
 
-        return [true, lock_until] if Resque.redis.setnx(lock_key, lock_until)
+        return [true, lock_until] if lock_redis.setnx(lock_key, lock_until)
         # Can't acquire the lock, see if it has expired.
-        lock_expiration = Resque.redis.get(lock_key)
+        lock_expiration = lock_redis.get(lock_key)
         if lock_expiration && lock_expiration.to_i < now
           # expired, try to acquire.
-          lock_expiration = Resque.redis.getset(lock_key, lock_until)
+          lock_expiration = lock_redis.getset(lock_key, lock_until)
           if lock_expiration.nil? || lock_expiration.to_i < now
             acquired = true
           end
         else
           # Try once more...
-          acquired = true if Resque.redis.setnx(lock_key, lock_until)
+          acquired = true if lock_redis.setnx(lock_key, lock_until)
         end
 
         [acquired, lock_until]
@@ -113,14 +123,14 @@ module Resque
 
       # Release the lock.
       def release_lock!(*args)
-        Resque.redis.del(redis_lock_key(*args))
+        lock_redis.del(redis_lock_key(*args))
       end
 
       # Convenience method, not used internally.
       #
       # @return [Boolean] true if the job is locked by someone
       def locked?(*args)
-        Resque.redis.exists(redis_lock_key(*args))
+        lock_redis.exists(redis_lock_key(*args))
       end
 
       # Where the magic happens.

@@ -92,6 +92,24 @@ repo_id.
 
 It's lock key would be: `resque-lock-timeout:UpdateNetworkGraph`.
 
+### Redis Connection Used for Locking
+
+By default all locks are stored via Resque's redis connection. If you wish to
+change this you may override `lock_redis`.
+
+    class UpdateNetworkGraph
+      extend Resque::Plugins::LockTimeout
+      @queue = :network_graph
+
+      def self.lock_redis
+        @lock_redis ||= Redis.new
+      end
+
+      def self.perform(repo_id)
+        heavy_lifting
+      end
+    end
+
 ### Callbacks
 
 Several callbacks are available to override and implement your own logic, e.g.

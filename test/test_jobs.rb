@@ -60,3 +60,25 @@ class ExpireBeforeReleaseJob
     $lock_expired = true
   end
 end
+
+class SpecificRedisJob
+  extend Resque::Plugins::LockTimeout
+  @queue = :test
+
+  def self.lock_redis
+    @redis
+  end
+
+  def self.lock_redis=(redis)
+    @redis = redis
+  end
+
+  def self.redis_lock_key
+    'specific_redis'
+  end
+
+  def self.perform
+    $success += 1
+    sleep 0.2
+  end
+end

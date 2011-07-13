@@ -105,4 +105,25 @@ class LockTest < Test::Unit::TestCase
     assert_equal true, $lock_expired, 'should be set by callback method'
     assert_equal false, FastJob.locked?, 'lock should not release'
   end
+
+  def test_lock_with_specific_redis
+    lock_redis = Redis.new(:host => Resque.redis.client.host,
+                           :port => Resque.redis.client.port,
+                           :db => 'locks',
+                           :threadsafe => true)
+    SpecificRedisJob.lock_redis = lock_redis
+    Resque.enqueue(SpecificRedisJob)
+
+    thread = Thread.new { @worker.process }
+
+    sleep 0.1
+    # this is nil in Resque.redis since we make no attempt to add a resque:
+    # prefix to the key
+    assert_nil Resque.redis.get('specific_redis')
+    assert_not_nil lock_redis.get('specific_redis')
+
+    thread.join
+    assert_nil lock_redis.get('specific_redis')
+    assert_equal 1, $success, 'job should increment success'
+  end
 end
