@@ -133,10 +133,14 @@ module Resque
         lock_redis.exists(redis_lock_key(*args))
       end
 
+      # Override this method to handle the job if lock exists
+      def abort_lock(*args)
+      end
+
       # Where the magic happens.
       def around_perform_lock(*args)
         # Abort if another job holds the lock.
-        return unless lock_until = acquire_lock!(*args)
+        return abort_lock(*args) unless lock_until = acquire_lock!(*args)
 
         begin
           yield
