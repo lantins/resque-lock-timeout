@@ -3,7 +3,7 @@ module Resque
     # If you want only one instance of your job running at a time,
     # extend it with this module:
     #
-    # require 'resque-lock'
+    # require 'resque-lock-timeout'
     #
     # class UpdateNetworkGraph
     #   extend Resque::Plugins::LockTimeout
