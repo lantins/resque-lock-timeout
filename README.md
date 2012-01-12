@@ -61,16 +61,12 @@ Customise & Extend
 
 ### Job Identifier/Lock Key
 
-The key is built using the `identifier`. If you have a lot of arguments or
-really long ones, you should consider overriding `identifier` to define a
-more precise or loose custom identifier.
+By default the key uses this format: `lock:<job class name>:<identifier>`.
 
 The default identifier is just your job arguments joined with a dash `-`.
 
-By default the key uses this format: 
-`resque-lock-timeout:<job class name>:<identifier>`.
-
-Or you can define the entire key by overriding `redis_lock_key`.
+If you have a lot of arguments or really long ones, you should consider
+overriding `identifier` to define a more precise or loose custom identifier:
 
     class UpdateNetworkGraph
       extend Resque::Plugins::LockTimeout
@@ -90,7 +86,24 @@ The above modification will ensure only one job of class
 UpdateNetworkGraph is running at a time, regardless of the
 repo_id.
 
-It's lock key would be: `resque-lock-timeout:UpdateNetworkGraph`.
+Its lock key would be: `lock:UpdateNetworkGraph` (the `:<identifier>` part is left out if the identifier is `nil`).
+
+You can define the entire key by overriding `redis_lock_key`:
+
+    class UpdateNetworkGraph
+      extend Resque::Plugins::LockTimeout
+      @queue = :network_graph
+
+      def self.redis_lock_key(repo_id)
+        "lock:updates"
+      end
+
+      def self.perform(repo_id)
+        heavy_lifting
+      end
+    end
+    
+That would use the key `lock:updates`.
 
 ### Redis Connection Used for Locking
 
