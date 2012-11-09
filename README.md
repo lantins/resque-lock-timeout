@@ -37,6 +37,23 @@ Default behaviour...
 
 Please see below for more information about the identifer/lock key.
 
+### More loneliness
+
+If you want to make sure that no other job is enqueued if the same one (identified
+by the `identifier` method) is already running / enqueued, you can set the `@loner`
+boolean to true.
+
+    class LonelyJob
+      extend Resque::Plugins::LockTimeout
+      @queue = :loners
+
+      @loner = true
+
+      def self.perform(repo_id)
+        heavy_lifting
+      end
+    end
+
 ### With Lock Expiry/Timeout
 
 The locking algorithm used can be found in the [Redis SETNX][redis-setnx]
@@ -158,9 +175,16 @@ Several callbacks are available to override and implement your own logic, e.g.
       # Lock may be held for upto an hour.
       @lock_timeout = 3600
 
+      # No same job get enqueued if one already running/enqueued
+      @loner = true
+
       # Job failed to acquire lock. You may implement retry or other logic.
       def self.lock_failed(repo_id)
         raise LockFailed
+      end
+
+      def self.loner_enqueue_failed(repo_id)
+      raise EnqueueFailed
       end
 
       # Job has complete; but the lock expired before we could relase it.

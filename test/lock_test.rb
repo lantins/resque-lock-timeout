@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class LockTest < MiniTest::Unit::TestCase
   def setup
-    $success = $lock_failed = $lock_expired = 0
+    $success = $lock_failed = $lock_expired = $enqueue_failed = 0
     Resque.redis.flushall
     @worker = Resque::Worker.new(:test)
   end
@@ -155,4 +155,25 @@ class LockTest < MiniTest::Unit::TestCase
     diff = latest_lock - initial_lock
     assert diff >= 1, 'diff between initial lock and refreshed lock should be at least 1 second'
   end
+
+  def test_cannot_enqueue_two_loner_jobs
+    Resque.enqueue(LonelyJob)
+    Resque.enqueue(LonelyJob)
+
+    assert_equal 1, Resque.size(:test)
+  end
+
+  def test_loner_job_should_not_be_enqued_if_already_running
+    Resque.enqueue(LonelyJob)
+    thread = Thread.new { @worker.process }
+
+    sleep 0.1 # The LonelyJob should be running (perfom is 0.2 seconds long)
+    Resque.enqueue(LonelyJob)
+    assert_equal 0, Resque.size(:test)
+    assert_equal 1, $enqueue_failed, 'One job callback should increment enqueue_failed'
+
+    thread.join
+    assert_equal 1, $success, 'One job should increment success'
+  end
+
 end

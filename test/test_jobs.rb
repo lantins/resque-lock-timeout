@@ -113,3 +113,19 @@ class RefreshLockJob
   @queue = :test
   @lock_timeout = 60
 end
+
+# Job who wants to be lonely
+class LonelyJob
+  extend Resque::Plugins::LockTimeout
+  @queue = :test
+  @loner = true
+
+  def self.perform
+    $success += 1
+    sleep 0.2
+  end
+
+  def self.loner_enqueue_failed(*args)
+    $enqueue_failed += 1
+  end
+end
