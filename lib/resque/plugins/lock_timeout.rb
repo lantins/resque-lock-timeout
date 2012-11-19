@@ -110,11 +110,13 @@ module Resque
         @loner ||= false
       end
 
-      # Convenience method, not used internally.
+      # Convenience method to check if job is locked and lock did not expire.
       #
       # @return [Boolean] true if the job is locked by someone
       def locked?(*args)
-        lock_redis.exists(redis_lock_key(*args))
+        lock_until = lock_redis.get(redis_lock_key(*args))
+        return (lock_until.to_i > Time.now.to_i) if lock_timeout(*args) > 0
+        !lock_until.nil?
       end
 
       # @abstract
@@ -145,7 +147,7 @@ module Resque
       # @param [Array] args job arguments
       def before_enqueue_lock(*args)
         if loner
-          if locked?(*args) 
+          if locked?(*args)
             # Same job is currently running
             loner_enqueue_failed(*args)
             false

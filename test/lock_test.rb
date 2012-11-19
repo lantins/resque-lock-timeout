@@ -192,4 +192,14 @@ class LockTest < MiniTest::Unit::TestCase
     assert_equal 1, $success, 'One job should increment success'
   end
 
+  def test_loner_job_should_get_enqueued_if_timeout_expired
+    Resque.enqueue(LonelyTimeoutExpiringJob)
+    thread = Thread.new { @worker.process }
+
+    sleep 2.1 # Wait for job to finish.
+
+    Resque.enqueue(LonelyTimeoutExpiringJob)
+    assert_equal 1, Resque.size(:test), "Should be able to enqueue a loner job if one previously finished after the timeout"
+  end
+
 end

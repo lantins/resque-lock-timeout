@@ -146,3 +146,15 @@ class LonelyTimeoutJob
     $enqueue_failed += 1
   end
 end
+
+# This job won't complete before it's timeout
+class LonelyTimeoutExpiringJob
+  extend Resque::Plugins::LockTimeout
+  @queue = :test
+  @loner = true
+  @lock_timeout = 1
+
+  def self.perform
+    sleep 2
+  end
+end
