@@ -7,8 +7,8 @@ resque-lock-timeout adds locking, with optional timeout/deadlock handling to
 resque jobs.
 
 Using a `lock_timeout` allows you to re-acquire the lock should your worker
-fail, crash, or is otherwise unable to relase the lock. **i.e.** Your server
-unexpectedly looses power. Very handy for jobs that are recurring or may be
+fail, crash, or is otherwise unable to release the lock. **i.e.** Your server
+unexpectedly loses power. Very handy for jobs that are recurring or may be
 retried.
 
 Usage / Examples
@@ -27,15 +27,15 @@ Usage / Examples
       end
     end
 
-Locking is achieved by storing a identifyer/lock key in Redis.
+Locking is achieved by storing a identifier/lock key in Redis.
 
-Default behaviour...
+Default behavior...
 
 * Only one instance of a job may execute at once.
 * The lock is held until the job completes or fails.
 * If another job is executing with the same arguments the job will abort.
 
-Please see below for more information about the identifer/lock key.
+Please see below for more information about the identifier/lock key.
 
 ### Enqueued Exclusivity (Loner Option)
 
@@ -64,7 +64,7 @@ Simply set the lock timeout in seconds, e.g.
       extend Resque::Plugins::LockTimeout
       @queue = :network_graph
 
-      # Lock may be held for upto an hour.
+      # Lock may be held for up to an hour.
       @lock_timeout = 3600
 
       def self.perform(repo_id)
@@ -72,7 +72,7 @@ Simply set the lock timeout in seconds, e.g.
       end
     end
 
-Customise & Extend
+Customize & Extend
 ==================
 
 ### Job Identifier/Lock Key
@@ -171,7 +171,7 @@ Several callbacks are available to override and implement your own logic, e.g.
       extend Resque::Plugins::Lock
       @queue = :network_graph
 
-      # Lock may be held for upto an hour.
+      # Lock may be held for up to an hour.
       @lock_timeout = 3600
 
       # No same job get enqueued if one already running/enqueued
@@ -187,7 +187,7 @@ Several callbacks are available to override and implement your own logic, e.g.
         raise EnqueueFailed
       end
 
-      # Job has complete; but the lock expired before we could relase it.
+      # Job has complete; but the lock expired before we could release it.
       # The lock wasn't released; as its *possible* the lock is now held
       # by another job.
       def self.lock_expired_before_release(repo_id)
