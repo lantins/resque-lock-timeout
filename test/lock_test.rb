@@ -3,7 +3,8 @@ require File.dirname(__FILE__) + '/test_helper'
 class LockTest < MiniTest::Unit::TestCase
   def setup
     $success = $lock_failed = $lock_expired = $enqueue_failed = 0
-    Resque.redis.flushall
+    @redis = Resque.backend.store
+    @redis.flushall
     @worker = Resque::Worker.new(:test)
   end
 
@@ -14,8 +15,9 @@ class LockTest < MiniTest::Unit::TestCase
 
   def test_version
     major, minor, patch = Resque::Version.split('.')
-    assert_equal 1, major.to_i
-    assert minor.to_i >= 7
+    assert_equal 2, major.to_i
+    assert_equal 0, minor.to_i
+    assert_equal 0, patch.to_i
   end
 
   def test_can_acquire_lock
@@ -69,7 +71,7 @@ class LockTest < MiniTest::Unit::TestCase
     now = Time.now.to_i
     assert SlowWithTimeoutJob.acquire_lock!, 'acquire lock'
 
-    lock = Resque.redis.get(SlowWithTimeoutJob.redis_lock_key)
+    lock = @redis.get(SlowWithTimeoutJob.redis_lock_key)
     assert (now + 58) < lock.to_i, 'lock expire time should be in the future'
   end
 
@@ -78,10 +80,10 @@ class LockTest < MiniTest::Unit::TestCase
     assert SlowWithTimeoutJob.acquire_lock!, 'acquire lock'
     assert_equal false, SlowWithTimeoutJob.acquire_lock!, 'acquire lock fails'
 
-    Resque.redis.set(SlowWithTimeoutJob.redis_lock_key, now - 40) # haxor timeout.
+    @redis.set(SlowWithTimeoutJob.redis_lock_key, now - 40) # haxor timeout.
     assert SlowWithTimeoutJob.acquire_lock!, 'acquire lock, timeout expired'
 
-    lock = Resque.redis.get(SlowWithTimeoutJob.redis_lock_key)
+    lock = @redis.get(SlowWithTimeoutJob.redis_lock_key)
     assert (now + 58) < lock.to_i
   end
 
@@ -106,8 +108,8 @@ class LockTest < MiniTest::Unit::TestCase
   end
 
   def test_lock_with_specific_redis
-    lock_redis = Redis.new(:host => Resque.redis.client.host,
-                           :port => Resque.redis.client.port,
+    lock_redis = Redis.new(:host => @redis.client.host,
+                           :port => @redis.client.port,
                            :db => 'locks',
                            :threadsafe => true)
     SpecificRedisJob.lock_redis = lock_redis
@@ -116,9 +118,9 @@ class LockTest < MiniTest::Unit::TestCase
     thread = Thread.new { @worker.process }
 
     sleep 0.1
-    # this is nil in Resque.redis since we make no attempt to add a resque:
+    # this is nil in @redis since we make no attempt to add a resque:
     # prefix to the key
-    assert_nil Resque.redis.get('specific_redis')
+    assert_nil @redis.get('specific_redis')
     assert lock_redis.get('specific_redis')
 
     thread.join
@@ -147,11 +149,11 @@ class LockTest < MiniTest::Unit::TestCase
     sleep 2
 
     # grab the initial lock timeout then refresh the lock.
-    initial_lock = Resque.redis.get(RefreshLockJob.redis_lock_key).to_i
+    initial_lock = @redis.get(RefreshLockJob.redis_lock_key).to_i
     RefreshLockJob.refresh_lock!
 
     # lock should now be at least 1 second more then the initial lock.
-    latest_lock = Resque.redis.get(RefreshLockJob.redis_lock_key).to_i
+    latest_lock = @redis.get(RefreshLockJob.redis_lock_key).to_i
     diff = latest_lock - initial_lock
     assert diff >= 1, 'diff between initial lock and refreshed lock should be at least 1 second'
   end
