@@ -245,4 +245,13 @@ class LockTest < Minitest::Test
     @worker.process
     assert_equal 1, Resque::Failure.count, "Should have been marked as failure"
   end
+
+  def test_lock_arguments
+    client_arguments = [:test, FastJob, [1,2,3], FastJob.new, { 'a' => 1, :b => 2.0, 'c' => '3' }]
+    client_lock = FastJob.identifier(*client_arguments)
+    job_arguments = Resque.decode(Resque.encode(client_arguments))
+    job_lock = FastJob.identifier(job_arguments)
+    assert_equal client_lock, job_lock
+  end
+
 end

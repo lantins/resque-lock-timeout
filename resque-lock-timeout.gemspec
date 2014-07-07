@@ -7,7 +7,6 @@ Gem::Specification.new do |s|
   s.homepage          = 'http://github.com/lantins/resque-lock-timeout'
   s.email             = 'luke@lividpenguin.com'
   s.authors           = ['Luke Antins', 'Ryan Carver', 'Chris Wanstrath']
-  s.has_rdoc          = false
 
   s.files             = %w(README.md Rakefile LICENSE HISTORY.md)
   s.files            += Dir.glob('lib/**/*')
@@ -25,7 +24,7 @@ Gem::Specification.new do |s|
 
   Using a `lock_timeout` allows you to re-acquire the lock should your worker
   fail, crash, or is otherwise unable to relase the lock.
-  
+
   i.e. Your server unexpectedly looses power. Very handy for jobs that are
   recurring or may be retried.
 desc
