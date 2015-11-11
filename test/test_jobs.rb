@@ -157,6 +157,25 @@ class LonelyTimeoutJob
   end
 end
 
+# Exclusive job, but only if run with certain args.
+class LonelyWithArgsJob
+  extend Resque::Plugins::LockTimeout
+  @queue = :test
+
+  def self.loner(lonely=false)
+    lonely
+  end
+
+  def self.perform(*args)
+    $success += 1
+    sleep 0.2
+  end
+
+  def self.loner_enqueue_failed(*args)
+    $enqueue_failed += 1
+  end
+end
+
 # This job won't complete before it's timeout
 class LonelyTimeoutExpiringJob
   extend Resque::Plugins::LockTimeout
