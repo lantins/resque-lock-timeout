@@ -1,10 +1,10 @@
 Resque Lock Timeout
 ===================
 
-[![Build Status](https://secure.travis-ci.org/lantins/resque-lock-timeout.png?branch=master)](http://travis-ci.org/lantins/resque-lock-timeout)
+[![Build Status](https://secure.travis-ci.org/lantins/resque-lock-timeout.png?branch=resque-2)](http://travis-ci.org/lantins/resque-lock-timeout)
 [![Gem Version](https://badge.fury.io/rb/resque-lock-timeout.png)](http://badge.fury.io/rb/resque-lock-timeout)
 
-A [Resque][rq] plugin. Requires Resque >= v2.0.0.
+A [Resque][rq] plugin. Requires Resque ~> v2.0
 
 resque-lock-timeout adds locking, with optional timeout/deadlock handling to
 resque jobs.
