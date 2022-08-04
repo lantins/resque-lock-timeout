@@ -7,7 +7,6 @@ Gem::Specification.new do |s|
   s.homepage          = 'http://github.com/lantins/resque-lock-timeout'
   s.email             = 'luke@lividpenguin.com'
   s.authors           = ['Luke Antins', 'Ryan Carver', 'Chris Wanstrath']
-  s.has_rdoc          = false
 
   s.files             = %w(README.md Rakefile LICENSE HISTORY.md)
   s.files            += Dir.glob('lib/**/*')
