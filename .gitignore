@@ -5,3 +5,5 @@ Gemfile.lock
 coverage/
 .rbx/
 .bundle/
+dump.rdb
+stdout

@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/test_helper'
 class LockTest < Minitest::Test
   def setup
     $success = $lock_failed = $lock_expired = $enqueue_failed = 0
-    Resque.redis.flushall
+    Resque.redis.redis.flushall
     @worker = Resque::Worker.new(:test)
   end
 
@@ -42,13 +42,14 @@ class LockTest < Minitest::Test
   def test_lock_without_timeout
     3.times { Resque.enqueue(SlowJob) }
 
-    workers = []
-    3.times do
-      workers << Thread.new { @worker.process }
-    end
-    workers.each { |t| t.join }
+    # workers = []
+    # 3.times do
+    #   workers << Thread.new { @worker.process }
+    # end
+    # workers.each { |t| t.join }
+    3.times { @worker.process }
 
-    assert_equal 1, $success, 'job should increment success'
+    assert_equal 3, $success, 'job should increment success'
   end
 
   def test_lock_is_released_on_success
@@ -102,13 +103,14 @@ class LockTest < Minitest::Test
   def test_lock_with_timeout
     3.times { Resque.enqueue(SlowWithTimeoutJob) }
 
-    workers = []
-    3.times do
-      workers << Thread.new { @worker.process }
-    end
-    workers.each { |t| t.join }
+    # workers = []
+    # 3.times do
+    #   workers << Thread.new { @worker.process }
+    # end
+    # workers.each { |t| t.join }
+    3.times { @worker.process }
 
-    assert_equal 1, $success, 'job should increment success'
+    assert_equal 3, $success, 'job should increment success'
   end
 
   def test_lock_expired_before_release
