@@ -122,8 +122,7 @@ class LockTest < Minitest::Test
   def test_lock_with_specific_redis
     lock_redis = Redis.new(:host => Resque.redis.client.host,
                            :port => Resque.redis.client.port,
-                           :db => 'locks',
-                           :threadsafe => true)
+                           :db => 'locks')
     SpecificRedisJob.lock_redis = lock_redis
     Resque.enqueue(SpecificRedisJob)
 
