@@ -1,3 +1,11 @@
+## 0.5.0 (Ibotta) (2023-01-23)
+
+- Fix: normalize args when creating identifier
+- Fix: adjust test with concurrency issues
+- Maintenance: Update gem dependencies to support rubies >= 2.7
+- Maintenance: test against redis gem 3, 4
+- Maintenance: run in github actions
+
 ## 0.4.5 (2015-08-04)
 
 - Fix: ensure exceptions are kept if raised **after** lock timeout expires.

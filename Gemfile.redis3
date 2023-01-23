@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+gemspec
+
+gem 'redis', '~> 3.3'
+gem 'redis-namespace', '~> 1.5.3'
