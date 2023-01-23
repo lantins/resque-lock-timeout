@@ -211,9 +211,9 @@ module Resque
           # Acquire using the timeout algorithm.
           acquired, lock_until = acquire_lock_algorithm!(lock_key, *args)
         elsif lock_redis.setnx(lock_key, true)
+          # Acquired without using a timeout.
           acquired = true
         end
-        # Acquire without using a timeout.
 
         send(failed_hook, *args) if !acquired
         (lock_until && acquired) ? lock_until : acquired
@@ -240,9 +240,9 @@ module Resque
             acquired = true
           end
         elsif lock_redis.setnx(lock_key, lock_until)
+          # Tried once more without timeout
           acquired = true
         end
-        # Try once more...
 
         [acquired, lock_until]
       end
