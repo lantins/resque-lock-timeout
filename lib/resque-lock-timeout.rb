@@ -1,2 +1,2 @@
-require 'resque'
-require 'resque/plugins/lock_timeout'
+require "resque"
+require "resque/plugins/lock_timeout"

@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.date = Time.now.strftime("%Y-%m-%d")
   s.summary = "A Resque plugin adding locking, with optional timeout/deadlock handling to resque jobs."
   s.license = "MIT"
-  s.homepage = "http://github.com/lantins/resque-lock-timeout"
+  s.homepage = "http://github.com/Ibotta/resque-lock-timeout"
   s.email = "oss@ibotta.com"
   s.authors = ["Ibotta", "Luke Antins", "Ryan Carver", "Chris Wanstrath"]
 

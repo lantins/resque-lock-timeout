@@ -90,7 +90,7 @@ class SpecificRedisJob
   end
 
   def self.redis_lock_key
-    'specific_redis'
+    "specific_redis"
   end
 
   def self.perform

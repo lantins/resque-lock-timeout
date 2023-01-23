@@ -1,7 +1,7 @@
 Resque Lock Timeout
 ===================
 
-A [Resque][rq] plugin. Requires Resque >= v1.8.0.
+A [Resque][rq] plugin. Requires Resque ~> 1.23.
 
 resque-lock-timeout adds locking, with optional timeout/deadlock handling to
 resque jobs.

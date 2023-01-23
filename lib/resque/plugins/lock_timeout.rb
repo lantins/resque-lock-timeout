@@ -59,7 +59,7 @@ module Resque
       # @param [Array] args job arguments
       # @return [String, nil] job identifier
       def identifier(*args)
-        Resque.decode(Resque.encode(args)).join('-')
+        Resque.decode(Resque.encode(args)).join("-")
       end
 
       # Override to fully control the redis object used for storing
@@ -80,7 +80,7 @@ module Resque
       # @param [Array] args job arguments
       # @return [String] redis key
       def redis_lock_key(*args)
-        ['lock', name, identifier(*args)].compact.join(':')
+        ["lock", name, identifier(*args)].compact.join(":")
       end
 
       # Builds lock key used by `@loner` option. Passed job arguments.
@@ -90,7 +90,7 @@ module Resque
       # @param [Array] args job arguments
       # @return [String] redis key
       def redis_loner_lock_key(*args)
-        ['loner', redis_lock_key(*args)].compact.join(':')
+        ["loner", redis_lock_key(*args)].compact.join(":")
       end
 
       # Number of seconds the lock may be held for.
@@ -137,7 +137,7 @@ module Resque
       # @param [Symbol] lock_key_method the method returning redis key to lock
       # @return [Boolean] true if the lock exists
       def inspect_lock(lock_key_method, *args)
-        lock_until = lock_redis.get(self.send(lock_key_method, *args))
+        lock_until = lock_redis.get(send(lock_key_method, *args))
         return (lock_until.to_i > Time.now.to_i) if lock_timeout(*args) > 0
         !lock_until.nil?
       end
@@ -205,18 +205,18 @@ module Resque
       # @return [Boolean, Fixnum]
       def acquire_lock_impl!(lock_key_method, failed_hook, *args)
         acquired = false
-        lock_key = self.send lock_key_method, *args
+        lock_key = send lock_key_method, *args
 
-        unless lock_timeout(*args) > 0
-          # Acquire without using a timeout.
-          acquired = true if lock_redis.setnx(lock_key, true)
-        else
+        if lock_timeout(*args) > 0
           # Acquire using the timeout algorithm.
           acquired, lock_until = acquire_lock_algorithm!(lock_key, *args)
+        elsif lock_redis.setnx(lock_key, true)
+          acquired = true
         end
+        # Acquire without using a timeout.
 
-        self.send(failed_hook, *args) if !acquired
-        lock_until && acquired ? lock_until : acquired
+        send(failed_hook, *args) if !acquired
+        (lock_until && acquired) ? lock_until : acquired
       end
 
       # Attempts to acquire the lock using a timeout / deadlock algorithm.
@@ -239,10 +239,10 @@ module Resque
           if lock_expiration.nil? || lock_expiration.to_i < now
             acquired = true
           end
-        else
-          # Try once more...
-          acquired = true if lock_redis.setnx(lock_key, lock_until)
+        elsif lock_redis.setnx(lock_key, lock_until)
+          acquired = true
         end
+        # Try once more...
 
         [acquired, lock_until]
       end
@@ -288,7 +288,7 @@ module Resque
           # Release the lock on success and error. Unless a lock_timeout is
           # used, then we need to be more careful before releasing the lock.
           now = Time.now.to_i
-          if lock_until != true and lock_until < now
+          if (lock_until != true) && (lock_until < now)
             # Eeek! Lock expired before perform finished. Trigger callback.
             lock_expired_before_release(*args)
           else
