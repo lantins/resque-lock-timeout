@@ -14,19 +14,20 @@ Gem::Specification.new do |s|
 
   s.add_dependency("resque", "~> 1.23")
   s.add_dependency("redis", ">= 3.3", "< 5")
+
   s.add_development_dependency("rake")
   s.add_development_dependency("minitest")
   s.add_development_dependency("yard")
   s.add_development_dependency("simplecov")
 
-  s.description = <<DESC
-  A Resque plugin. Adds locking, with optional timeout/deadlock handling to
-  resque jobs.
+  s.description = <<-DESC
+    A Resque plugin. Adds locking, with optional timeout/deadlock handling to
+    resque jobs.
 
-  Using a `lock_timeout` allows you to re-acquire the lock should your worker
-  fail, crash, or is otherwise unable to relase the lock.
+    Using a `lock_timeout` allows you to re-acquire the lock should your worker
+    fail, crash, or is otherwise unable to relase the lock.
 
-  i.e. Your server unexpectedly loses power. Very handy for jobs that are
-  recurring or may be retried.
-DESC
+    i.e. Your server unexpectedly loses power. Very handy for jobs that are
+    recurring or may be retried.
+  DESC
 end
