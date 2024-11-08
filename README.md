@@ -1,6 +1,10 @@
 # Resque Lock Timeout
 
-A [Resque][rq] plugin. Requires Resque ~> 1.23.
+A [Resque][rq] plugin. Requires Resque ~> 1.23, redis-rb >= 3.3, < 5.
+
+This is a fork of [resque-lock-timeout][resque-lock-timeout] with testing and other fixes applied.
+
+----------
 
 resque-lock-timeout adds locking, with optional timeout/deadlock handling to resque jobs.
 
@@ -56,7 +60,7 @@ end
 
 The locking algorithm used can be found in the [Redis SETNX][redis-setnx] documentation.
 
-Simply set the lock timeout in seconds, e.g.
+Set the lock timeout in seconds, e.g.
 
 ```ruby
 class UpdateNetworkGraph
@@ -76,9 +80,9 @@ end
 
 ### Job Identifier/Lock Key
 
-By default the key uses this format: `lock:<job class name>:<identifier>`.
+By default, the key uses this format: `lock:<job class name>:<identifier>`.
 
-The default identifier is just your job arguments joined with a dash `-`.
+The default identifier is your job arguments joined with a dash `-`.
 
 If you have a lot of arguments or really long ones, you should consider overriding `identifier` to define a more precise or loose custom identifier:
 
@@ -123,7 +127,7 @@ That would use the key `lock:updates`.
 
 ### Redis Connection Used for Locking
 
-By default all locks are stored via Resque's redis connection. If you wish to change this you may override `lock_redis`.
+By default, all locks are stored via Resque's redis connection. If you wish to change this you may override `lock_redis`.
 
 ```ruby
 class UpdateNetworkGraph
@@ -165,7 +169,7 @@ end
 - `enqueued?` - checks if the loner lock is currently held.
 - `loner_locked?` - checks if the job is either enqueued (if a loner) or locked (any job).
 - `refresh_lock!` - Refresh the lock, useful for jobs that are taking longer
-  then usual but your okay with them holding on to the lock a little longer.
+  then usual but you're okay with them holding on to the lock a little longer.
 
 ### Callbacks
 
@@ -221,3 +225,4 @@ Forked from [a little tinkering from Luke Antins](https://github.com/lantins/res
 [redis-setnx]: http://redis.io/commands/setnx
 [resque-lock]: http://github.com/defunkt/resque-lock
 [resque-lock-retry]: http://github.com/rcarver/resque-lock-retry
+[resque-lock-timeout]: https://github.com/lantins/resque-lock-timeout

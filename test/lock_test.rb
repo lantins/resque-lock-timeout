@@ -13,7 +13,7 @@ class LockTest < Minitest::Test
   end
 
   def test_version
-    major, minor, _patch = Resque::Version.split(".")
+    major, minor, _patch = Resque::VERSION.split(".")
     assert_equal 1, major.to_i
     assert minor.to_i >= 7
   end

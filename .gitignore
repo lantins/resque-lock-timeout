@@ -7,3 +7,4 @@ coverage/
 .bundle/
 dump.rdb
 stdout
+.vscode
