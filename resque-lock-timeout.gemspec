@@ -1,6 +1,8 @@
+require_relative "lib/resque/plugins/lock_timeout/version"
+
 Gem::Specification.new do |s|
   s.name = "ibotta-resque-lock-timeout"
-  s.version = "0.5.1"
+  s.version = Resque::Plugins::LockTimeout::VERSION
   s.date = Time.now.strftime("%Y-%m-%d")
   s.summary = "A Resque plugin adding locking, with optional timeout/deadlock handling to resque jobs."
   s.license = "MIT"

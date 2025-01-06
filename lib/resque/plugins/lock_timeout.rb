@@ -1,3 +1,5 @@
+require_relative "lock_timeout/version"
+
 module Resque
   module Plugins
     # If you want only one instance of your job running at a time,
